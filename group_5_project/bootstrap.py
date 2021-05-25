@@ -23,7 +23,7 @@ def bootstrap(data, f_statistic, draws):
 
 
 def moving_mean_var(new_data, old_mean, old_var, t):
-    """ Calculates moving sameple mean and variance at time t.
+    """ Calculates moving sample mean and variance at time t.
     
     Keywords:
         new_data (float): new data point arriving at time t.
@@ -43,17 +43,19 @@ def moving_mean_var(new_data, old_mean, old_var, t):
         new_var = (1 - 1 / (t - 1)) * old_var + t * (new_mean - old_mean)**2
     return new_mean, new_var
 
-def plot_empirical_mean_waiting_time(mean_queue_all, emp_mean, emp_p95, emp_max):
+def plot_empirical_mean_waiting_time(mean_queue_all, emp_mean, emp_p95, emp_max, filename):
     fig = plt.figure()
     ax = plt.subplot(1,1,1)
 
     num_bins = 25
-    n, bins, patches = ax.hist(max_queue_all, num_bins, density=0, label='Draws')
+    n, bins, patches = ax.hist(mean_queue_all, num_bins, density=0, label='Draws')
     ax.axvline(emp_mean, label='Mean', color='r')
     ax.axvline(emp_p95, label='95th percentile', color='r', linestyle='--')
     ax.axvline(emp_max, label='Worst Case', color='purple', linestyle='-.')
-    ax.set(title='Queue simulation: Max. queue length',
-           xlabel= 'Queue length',
+    ax.set(title='Online Average Waiting Time Simulation',
+           xlabel= 'Waiting Time (seconds)',
            ylabel='Frequency')
     ax.legend()
+    fig.savefig(f'plots/bootstrap/bootstrap_group={filename}.pdf', dpi=300)
     plt.show()
+
