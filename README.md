@@ -1,6 +1,6 @@
 # Repository Description
 
-This Group 5 GitHub repository for MGT-600 Spring 2021 course.
+This Group 5 GitHub repository for MATH-600 Spring 2021 course.
 
 # Content
 
