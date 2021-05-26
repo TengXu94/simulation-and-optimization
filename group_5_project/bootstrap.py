@@ -55,7 +55,7 @@ def plot_empirical_mean_waiting_time(mean_queue_all, emp_mean, emp_p95, emp_max,
     ax.set(title='Online Average Waiting Time Simulation',
            xlabel= 'Waiting Time (seconds)',
            ylabel='Frequency')
-    ax.legend()
+    plt.legend()
     fig.savefig(f'plots/bootstrap/bootstrap_group={filename}.pdf', dpi=300)
     plt.show()
 

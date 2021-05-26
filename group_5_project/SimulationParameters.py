@@ -1,6 +1,12 @@
 from models import ServerIDs, Groups
 
 class SimulationParameters:
+	"""
+	This class contains the main parameters when estimating parameters,
+	that is:
+		- boostraping
+		- variance reduction
+	"""
 
 	def __init__(self):
 		self.precision = 2
@@ -23,8 +29,25 @@ class SimulationParameters:
 		self.final_statistics = self.initialize_final_statistics()
 		self.run = 100
 
-	def initialize_final_statistics(self):
+	def initialize_final_statistics(self)-> dict:
+		"""
+		Description
+		--------------
+		The function initializes an empty dictionary
+		where statistical variables are stored when
+		using:
+			- boostraping
+			- a variance reduction technique
 
+
+		Input:
+		---------------
+		Void
+
+		Output
+		---------------
+		final_statistics, a dictionary for each group
+		"""
 		final_statistics = dict()
 		for group in self.groups:
 		    final_statistics[group] = dict()
@@ -38,4 +61,17 @@ class SimulationParameters:
 		return final_statistics
 
 	def reset_final_statistics(self):
+		"""
+		Description
+		----------------
+		The function reset the final_statistics
+
+		Input:
+		----------------
+		Void
+
+		Output:
+		----------------
+		Void
+		"""
 		self.final_statistics = self.initialize_final_statistics()
