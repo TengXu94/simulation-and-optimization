@@ -13,6 +13,7 @@ def get_queue_statistics(queue: list)->dict:
     """
     output = dict()
     groups = [ServerIDs.msn.value, ServerIDs.asn_2.value, ServerIDs.asn_1.value]
+    overall_queue = np.array([])
     for group in groups:
         queue_length = np.array([x[1] for x in queue[group]])
         
@@ -23,8 +24,18 @@ def get_queue_statistics(queue: list)->dict:
             'min': queue_length.min(),
             'var': np.var(queue_length)
         }
+        overall_queue = np.concatenate([overall_queue, queue_length])
         
+    output['overall'] = {
+        'std': overall_queue.std(),
+        'max': overall_queue.max(),
+        'min': overall_queue.min(),
+        'var': np.var(overall_queue)
+    }
+    
     return output
+
+
 
 def get_statistics(results: list):
     """

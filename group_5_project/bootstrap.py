@@ -1,5 +1,11 @@
 import numpy as np
-import matplotlib.pyplot as plt
+
+from Scenario import Scenario
+from SimulationParameters import SimulationParameters
+from models import Statistics
+from plot_functions import plot_empirical_mean_waiting_time
+from simulation import handle_requests
+from utils import get_statistics
 
 def bootstrap(data, f_statistic, draws):
     """ Calculates the bootstrap mse of a statistic of choice
@@ -43,19 +49,60 @@ def moving_mean_var(new_data, old_mean, old_var, t):
         new_var = (1 - 1 / (t - 1)) * old_var + t * (new_mean - old_mean)**2
     return new_mean, new_var
 
-def plot_empirical_mean_waiting_time(mean_queue_all, emp_mean, emp_p95, emp_max, filename):
-    fig = plt.figure()
-    ax = plt.subplot(1,1,1)
+def test_bootstrap(allocation: list, file_name: str):
+    """
+    Description:
+        Parameters estimation using bootstrap
+    Args:
+        allocation (list) - The list of initial movies allocated to the ASNs
+        file_name (str) - custom plot file name
+    """
+    t = 0
+    scenario = Scenario(allocation, allocation)
+    simulation_parameters = SimulationParameters()
 
-    num_bins = 25
-    n, bins, patches = ax.hist(mean_queue_all, num_bins, density=0, label='Draws')
-    ax.axvline(emp_mean, label='Mean', color='r')
-    ax.axvline(emp_p95, label='95th percentile', color='r', linestyle='--')
-    ax.axvline(emp_max, label='Worst Case', color='purple', linestyle='-.')
-    ax.set(title='Online Average Waiting Time Simulation',
-           xlabel= 'Waiting Time (seconds)',
-           ylabel='Frequency')
-    plt.legend()
-    fig.savefig(f'plots/bootstrap/bootstrap_group={filename}.pdf', dpi=300)
-    plt.show()
+    var = 0
+    mean  = 0
+    mean_waiting_time_all = []
+    mean_waiting_time_mean_all = []
+    mean_waiting_time_var_all = []
+    while True: 
+        t += 1
+
+        # Run simulation
+        results, _ = handle_requests(scenario)
+
+        # Collect statistics
+        statistics = get_statistics(results)
+
+
+        mean_waiting_time = statistics['overall'][Statistics.mean.value]
+        mean, var = moving_mean_var(
+            mean_waiting_time,\
+            mean,\
+            var,\
+            t
+        )
+  
+        mean_waiting_time_all.append(mean_waiting_time)
+        mean_waiting_time_mean_all .append(mean)
+        mean_waiting_time_var_all.append(var)
+
+        # Check if necessary precision reached
+        if t >= simulation_parameters.run and np.sqrt(var / t) < simulation_parameters.precision:
+            break
+
+
+    f_mean = lambda data: np.mean(data)
+
+    bootstrap_mean = bootstrap(np.array(mean_waiting_time_all), f_mean, t)
+    empirical_mean = np.mean(mean_waiting_time_all)
+    print('{:<20} {:<20}'.format(f'Bootstrap MSE: {bootstrap_mean}', f'Empirical: {empirical_mean}'))
+    plot_empirical_mean_waiting_time(
+        mean_waiting_time_all,
+        np.mean(mean_waiting_time_all),
+        np.quantile(mean_waiting_time_all, q=0.95),
+        np.max(mean_waiting_time_all),
+        f'overall_average_waiting_time'
+    )
 

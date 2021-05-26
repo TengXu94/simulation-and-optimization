@@ -20,6 +20,15 @@ class Groups(Enum):
     Group_2 = 2
     Group_3 = 3
 
+class Statistics(Enum):
+    """
+    Description: 
+        Class storing statistcs ids
+    """
+    mean = 'average'
+    q75 = 'q75'
+    max_ = 'max'
+
     
     
 class Status(Enum):

@@ -8,6 +8,7 @@ The main Project Code, where all the simulation and optimization experiments are
 
 # Packages
 
+- simulation, all functions to create our simulation environment are stored here.
 - constants, we store all constant variables here.
 - utils, handy self-crafted functions that can be used as black-box are stored here.
 - Scenario, our main class which represents and stores all environment variables.
@@ -15,6 +16,7 @@ The main Project Code, where all the simulation and optimization experiments are
 - SimulationParameters, all parameters used and stored when performing bootstraping and variance-reduction techniques are stored here.
 - distributions, all functions that are related to distributions are stored here.
 - boostrap, helpful functions used in the Boostrap task.
+- plot_functions, all plotting functions are stored here.
 
 # Plots
 
