@@ -10,8 +10,8 @@ This Group 5 GitHub repository for MATH-600 Spring 2021 course.
 
 # The Team
 
-Dorsa Abdolhamidi - dorsa.abdolhamidi@epfl.ch
-Onur Demiray - onur.demiray@epfl.ch
-Jun Han - jun.han@epfl.ch
-Philipp Schneider - philipp.schneider@epfl.ch
-Teng Andrea Xu - andrea.xu@epfl.ch
+- Dorsa Abdolhamidi - dorsa.abdolhamidi@epfl.ch
+- Onur Demiray - onur.demiray@epfl.ch
+- Jun Han - jun.han@epfl.ch
+- Philipp Schneider - philipp.schneider@epfl.ch
+- Teng Andrea Xu - andrea.xu@epfl.ch
