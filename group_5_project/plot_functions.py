@@ -9,9 +9,11 @@ def plot_queues(queues, title: str, file_name: str):
         times = [x[0] for x in time_queue]
         queue = [x[1] for x in time_queue]
         ax.plot(times, queue, label=key)
+        ax.vlines([1200,2400], 0, 1, transform=ax.get_xaxis_transform(),linestyles='dashed',colors='k')
     ax.set(title=title,
            xlabel='Time',
            ylabel='Queue length')
+
     fig.savefig(f'plots/queue_time_series_{file_name}.png', dpi=300)
     plt.legend()
     plt.show()
