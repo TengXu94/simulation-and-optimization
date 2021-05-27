@@ -27,7 +27,7 @@ class SimulationParameters:
 		self.parameter_queue_all = f'{self.parameter_queue}_all'
 
 		self.final_statistics = self.initialize_final_statistics()
-		self.run = 100
+		self.run = 1
 
 	def initialize_final_statistics(self)-> dict:
 		"""
