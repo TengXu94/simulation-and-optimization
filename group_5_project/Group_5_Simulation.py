@@ -2149,7 +2149,7 @@ def simulateSimulatedAnnealing(rg_, init_sol, n_iteration, n_run, selected_neigh
 
 if __name__ == '__main__':
     
-    init_sol = Solution([8, 4, 1, 7], [6, 5, 3], "average")
+    init_sol = constructionHeuristic("average")
     rg_ = Generator(PCG64(42069))
     n_iteration = 50
     # TO-DO
