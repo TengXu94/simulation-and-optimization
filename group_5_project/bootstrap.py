@@ -1,9 +1,10 @@
+from constants import FIRST_ALLOCATION, SECOND_ALLOCATION
 import numpy as np
 
 from Scenario import Scenario
 from SimulationParameters import SimulationParameters
 from models import Statistics
-from plot_functions import plot_empirical_mean_waiting_time
+from plot_functions import plot_empirical_waiting_time
 from simulation import handle_requests
 from utils import get_statistics
 
@@ -63,7 +64,11 @@ def test_bootstrap(allocation: list, file_name: str):
 
     var = 0
     mean  = 0
+
     mean_waiting_time_all = []
+    max_waiting_time_all = []
+    q75_waiting_time_all = []
+
     mean_waiting_time_mean_all = []
     mean_waiting_time_var_all = []
     while True: 
@@ -77,6 +82,9 @@ def test_bootstrap(allocation: list, file_name: str):
 
 
         mean_waiting_time = statistics['overall'][Statistics.mean.value]
+        max_waiting_time = statistics['overall'][Statistics.max_.value]
+        q75_waiting_time = statistics['overall'][Statistics.q75.value]
+
         mean, var = moving_mean_var(
             mean_waiting_time,\
             mean,\
@@ -85,6 +93,10 @@ def test_bootstrap(allocation: list, file_name: str):
         )
   
         mean_waiting_time_all.append(mean_waiting_time)
+        max_waiting_time_all.append(max_waiting_time)
+        q75_waiting_time_all.append(q75_waiting_time)
+
+
         mean_waiting_time_mean_all .append(mean)
         mean_waiting_time_var_all.append(var)
 
@@ -94,15 +106,47 @@ def test_bootstrap(allocation: list, file_name: str):
 
 
     f_mean = lambda data: np.mean(data)
+    f_max = lambda data: np.max(data)
+    f_q75 = lambda data: np.quantile(data, q=0.75)
 
     bootstrap_mean = bootstrap(np.array(mean_waiting_time_all), f_mean, t)
+    bootstrap_max = bootstrap(np.array(max_waiting_time_all), f_max, t)
+    bootstrap_q75 = bootstrap(np.array(q75_waiting_time_all), f_q75, t)
+
     empirical_mean = np.mean(mean_waiting_time_all)
+    empirical_max = np.max(max_waiting_time_all)
+    empiritical_q75 = np.quantile(q75_waiting_time_all, q=.75)
+
     print('{:<20} {:<20}'.format(f'Bootstrap MSE: {bootstrap_mean}', f'Empirical: {empirical_mean}'))
-    plot_empirical_mean_waiting_time(
+    
+    plot_empirical_waiting_time(
         mean_waiting_time_all,
         np.mean(mean_waiting_time_all),
         np.quantile(mean_waiting_time_all, q=0.95),
         np.max(mean_waiting_time_all),
-        f'overall_average_waiting_time'
+
+        f'overall_average_waiting_time_{file_name}_variable=mean_mse={round(bootstrap_mean,2)}'
     )
+
+    plot_empirical_waiting_time(
+        max_waiting_time_all,
+        np.mean(max_waiting_time_all),
+        np.quantile(max_waiting_time_all, q=0.95),
+        np.max(max_waiting_time_all),
+        f'overall_max_waiting_time_{file_name}_variable=max_mse={round(bootstrap_max,2)}'
+    )
+
+    plot_empirical_waiting_time(
+        q75_waiting_time_all,
+        np.mean(q75_waiting_time_all),
+        np.quantile(q75_waiting_time_all, q=0.95),
+        np.max(q75_waiting_time_all),
+        f'overall_q75_waiting_time_{file_name}_variable=q75_mse={round(bootstrap_q75,2)}'
+    )
+
+
+if __name__ == '__main__':
+    test_bootstrap(FIRST_ALLOCATION, 'first_allocation')
+
+    test_bootstrap(SECOND_ALLOCATION, 'second_allocation')
 

@@ -17,6 +17,7 @@ random.seed(0)
 import timeit
 from operator import attrgetter
 import math
+import matplotlib.pyplot as plt
 
 
 # In[2]:
@@ -48,7 +49,7 @@ from constants import MAX_CAPACITY, FIRST_ALLOCATION, SECOND_ALLOCATION
 from SimulationParameters import SimulationParameters
 
 ## plot functions
-from plot_functions import plot_queues, plot_empirical_mean_waiting_time
+from plot_functions import plot_queues
 
 
 # # Simulation
@@ -292,20 +293,8 @@ def control_variate_runs(allocation: list, scenario=None):
 
 # control_variate, _ = control_variate_runs(FIRST_ALLOCATION)
 
-import matplotlib.pyplot as plt
 
-# fig = plt.figure()
-# ax = plt.subplot(1,1,1)
 
-# ax.plot(independent, label='Std. dev. - independent runs')
-# ax.plot(np.arange(0,len(independent),step=2), antithetic, label='Std. dev.- antithetic runs')
-# ax.plot(control_variate, label='Std. dev. - control variate runs')
-# ax.set(title='Waiting Time',
-#        xlabel='Epoch',
-#        ylabel='Average Waiting Time')
-# ax.legend()
-# fig.savefig('variance_reduction.pdf', dpi=300)
-# plt.show()
 
 
 # # Optimization Part
