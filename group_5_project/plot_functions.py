@@ -21,6 +21,24 @@ def plot_variate_reduction_results_for_groups(
     fig.savefig(f'plots/extra/variance_reduction_{file_name}.png')
     plt.show()
 
+def plot_variable_reduction_results(
+    independent: np.array, 
+    antithetic: np.array, 
+    control_variate: np.array
+):
+    fig = plt.figure()
+    ax = plt.subplot(1,1,1)
+
+    ax.plot(independent, label='Std. dev. - independent runs')
+    ax.plot(np.arange(0,len(independent),step=2), antithetic, label='Std. dev.- antithetic runs')
+    ax.plot(control_variate, label='Std. dev. - control variate runs')
+    ax.set(
+        xlabel='Epoch',
+        ylabel='Average Waiting Time'
+    )
+    ax.legend()
+    fig.savefig('plots/variance_reduction/second_allocation.png', dpi=300)
+
 def plot_queues(queues, title: str, file_name: str):
     fig = plt.figure()
     ax = plt.subplot(1,1,1)
@@ -33,10 +51,8 @@ def plot_queues(queues, title: str, file_name: str):
     ax.set(title=title,
            xlabel='Time',
            ylabel='Queue length')
-
-    fig.savefig(f'plots/queue_time_series_{file_name}.png', dpi=300)
     plt.legend()
-    plt.show()
+    fig.savefig(f'plots/queue_time_series_{file_name}.png', dpi=300)
 
 def plot_empirical_waiting_time(mean_queue_all, emp_mean, emp_p95, emp_max, filename):
     fig = plt.figure()
@@ -53,4 +69,3 @@ def plot_empirical_waiting_time(mean_queue_all, emp_mean, emp_p95, emp_max, file
         )
     plt.legend()
     fig.savefig(f'plots/bootstrap/{filename}.png', dpi=300)
-    plt.show()

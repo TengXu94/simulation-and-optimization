@@ -30,7 +30,7 @@ def get_queue_statistics(queue: list)->dict:
         'std': overall_queue.std(),
         'max': overall_queue.max(),
         'min': overall_queue.min(),
-        'var': np.var(overall_queue)
+        'var': np.var(overall_queue),
     }
     
     return output
@@ -55,8 +55,15 @@ def get_statistics(results: list):
     waiting_times[3] = []
     
     overall = []
+    movie_choices_var = []
+    total_msn_customers = 0
     for customer in results:
         overall.append(customer.waiting_time)
+        movie_choices_var.append(customer.movie_choice)
+
+        if customer.server_address == ServerIDs.msn.value:
+            total_msn_customers += 1
+
         waiting_time = customer.waiting_time
         waiting_times[customer.server_address].append(waiting_time)    
         waiting_times[customer.id_].append(waiting_time)
@@ -80,5 +87,7 @@ def get_statistics(results: list):
     statistics['overall']['max'] = overall.max()
     statistics['overall']['q75'] = np.quantile(overall, 0.75)
     statistics['overall']['average'] = overall.mean()
-    
+    statistics['overall']['total_customers'] = len(overall) #0.19 correlation with average waiting time
+    statistics['overall']['movie_choices_var'] = np.var(movie_choices_var) # 0.07
+    statistics['overall']['total_msn_customers'] = total_msn_customers #0.55
     return statistics

@@ -231,13 +231,25 @@ def control_variate_runs(allocation: list):
 
 if __name__ == '__main__':
 
+    # independent = independent_runs(FIRST_ALLOCATION)
+    # antithetic = antithetic_runs(FIRST_ALLOCATION)
+    # controlled_variates = control_variate_runs(FIRST_ALLOCATION)
+
+    # plot_variate_reduction_results_for_groups(
+    #     independent,
+    #     antithetic,
+    #     controlled_variates,
+    #     'first_allocation',
+    #     ServerIDs.msn.value
+    # )
+
     independent = independent_runs(SECOND_ALLOCATION)
-    antithetic_runs = antithetic_runs(SECOND_ALLOCATION)
+    antithetic= antithetic_runs(SECOND_ALLOCATION)
     controlled_variates = control_variate_runs(SECOND_ALLOCATION)
 
     plot_variate_reduction_results_for_groups(
         independent,
-        antithetic_runs,
+        antithetic,
         controlled_variates,
         'second_allocation',
         ServerIDs.msn.value
