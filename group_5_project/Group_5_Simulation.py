@@ -2147,6 +2147,99 @@ def simulateSimulatedAnnealing(rg_, init_sol, n_iteration, n_run, selected_neigh
     Res.to_excel("excel_files/simulated_annealing_w_selected_ngh.xlsx")
 
 
+def runLocalSearch(simClass, which_neighbor=1):
+    
+    """
+    Runs the local search algorithm considering the given neighborhood definition
+    
+    @inputs:
+    -------
+    
+    --> which_neighbor: int, 1,2,3, or 4
+
+    """
+    
+    start_time = timeit.default_timer()
+    for i in range(simClass.n_iteration):
+        # print('iteration ', i+1)
+        candidate_solution = get_candidate_solution(simClass.rg, simClass.best_solution, which_neighbor)
+        candidate_value, _ = candidate_solution.get_objectives()
+        simClass.history_candidatesol.append(candidate_value)
+        if candidate_value < simClass.best_value:  
+            simClass.best_solution = deepcopy(candidate_solution)
+            simClass.best_value = candidate_value
+        simClass.history_bestsol.append(simClass.best_value)
+    end_time = timeit.default_timer()
+    simClass.time = end_time - start_time
+    simClass.best_value_average = simClass.best_solution.waiting_time_average
+    return simClass
+
+def simulateLocalSearch(rg_, init_sol, n_iteration, n_run, selected_neighborhood):
+    
+    local_seach_list = []
+
+    for i in range(1,n_run+1):
+
+        local_search = LocalSearch(rg_, init_sol, n_iteration, wt_obj='average')
+        local_seach_list.append(local_search)
+    
+    num_cores = mp.cpu_count()-1  #leave one free to not freeze machine
+    pool = mp.Pool(num_cores)
+    resultsClasses=[]
+    resultsClasses+=pool.map(runLocalSearch, local_seach_list)
+    pool.close()
+    pool.join()
+    
+    times, objectives, runs, max_vals = [], [], []
+
+    for i in range(1,n_run+1):
+        runs.append(i)
+        times.append(resultsClasses[i-1].time)
+        objectives.append(resultsClasses[i-1].best_value)
+        max_vals.append(resultsClasses[i-1].best_value_max)
+        resultsClasses[i-1].plot_ls(selected_neighborhood, which_run=i)
+
+    Res = pd.DataFrame(columns=['Run_n','BestObj','Time'])
+    Res['Run_n'] = runs
+    Res['BestObj'] = objectives
+    Res['Time'] = times
+    Res['BestObjMax'] = max_vals
+    Res.to_excel("excel_files/local_seach_max.xlsx")
+
+
+def simulateLocalSearchWithMax(rg_, init_sol, n_iteration, n_run, selected_neighborhood):
+    
+    local_seach_list = []
+
+    for i in range(1,n_run+1):
+
+        local_search = LocalSearch(rg_, init_sol, n_iteration, wt_obj='max')
+        local_seach_list.append(local_search)
+    
+    num_cores = mp.cpu_count()-1  #leave one free to not freeze machine
+    pool = mp.Pool(num_cores)
+    resultsClasses=[]
+    resultsClasses+=pool.map(runLocalSearch, local_seach_list)
+    pool.close()
+    pool.join()
+    
+    times, objectives, runs, average_vals = [], [], [], []
+
+    for i in range(1,n_run+1):
+        runs.append(i)
+        times.append(resultsClasses[i-1].time)
+        objectives.append(resultsClasses[i-1].best_value)
+        average_vals.append(resultsClasses[i-1].best_value_average)
+        resultsClasses[i-1].plot_ls(selected_neighborhood, which_run=i)
+
+    Res = pd.DataFrame(columns=['Run_n','BestObj','Time','BestObjAverage'])
+    Res['Run_n'] = runs
+    Res['BestObj'] = objectives
+    Res['Time'] = times
+    Res['BestObjAverage'] = average_vals
+    Res.to_excel("excel_files/local_seach_onur.xlsx")
+
+
 if __name__ == '__main__':
     
     init_sol = constructionHeuristic("average")
@@ -2156,9 +2249,11 @@ if __name__ == '__main__':
     selected_neighborhood = 1
     n_run = 5
 
-    #simulateSimulatedAnnealing(rg_,init_sol,n_iteration,n_run, selected_neighborhood)
-    simulateVNS(rg_, init_sol, n_iteration, n_run)
-    #simulateMultiObj(rg_, init_sol, n_iteration, n_run, selected_neighborhood)
+
+    simulateLocalSearch(rg_, init_sol, n_iteration, n_run, selected_neighborhood)
+    # simulateSimulatedAnnealing(rg_,init_sol,n_iteration,n_run, selected_neighborhood)
+    # simulateVNS(rg_, init_sol, n_iteration, n_run)
+    # simulateMultiObj(rg_, init_sol, n_iteration, n_run, selected_neighborhood)
     
     ### - Single Run
 
