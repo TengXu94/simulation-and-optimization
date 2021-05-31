@@ -29,3 +29,4 @@ python3 control_variate.py
 #############
 # Optimization Figures
 #############
+python3 optimization.py

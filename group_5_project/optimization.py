@@ -1917,290 +1917,38 @@ def simulateLocalSearchWithMax(rg_, init_sol, n_iteration, n_run, selected_neigh
 
 
 if __name__ == '__main__':
-    
-    init_sol = constructionHeuristic("average")
+    ###################
+    # Slide 32 and Slide 33 - Random Initial Solution
+    ###################
     rg_ = Generator(PCG64(42069))
     n_iteration = 50
-    # TO-DO
     selected_neighborhood = 1
     n_run = 5
 
-
+    init_sol = getRandomFeasibleSolution("average")
     simulateLocalSearch(rg_, init_sol, n_iteration, n_run, selected_neighborhood)
-    # simulateSimulatedAnnealing(rg_,init_sol,n_iteration,n_run, selected_neighborhood)
-    # simulateVNS(rg_, init_sol, n_iteration, n_run)
-    # simulateMultiObj(rg_, init_sol, n_iteration, n_run, selected_neighborhood)
-    
-    ### - Single Run
 
-    # start_time = timeit.default_timer()
-    #init_sol = getRandomFeasibleSolution("average")
-    ### - Single Run
-
-
-
-    ### - Parallel Computing trial
-
-    # start_time = timeit.default_timer()
-    # # init_sol = getRandomFeasibleSolution("average")
-    # simAnnealList=[]
-    # for i in range(3):
-    #     simulated_annealing = SimulatedAnnealing(rg_, init_sol, n_iteration, wt_obj='average')
-    #     simAnnealList.append(simulated_annealing)
-
-    # num_cores = mp.cpu_count()-2  #leave one free to not freeze machine
-    #     # start_time = timeit.default_timer()
-    # pool = mp.Pool(num_cores)
-    # resultsClasses=[]
-    # resultsClasses+=pool.map(runSimAnnealing, simAnnealList)
-    # pool.close()
-    # pool.join()
-    # end_time = timeit.default_timer()
-    # print(f'Running time: {end_time-start_time}')
-
-
-# print("time taken for simulated annealing :{0:.5f}s".format(simulated_annealing.time))
-# simulated_annealing.plot_sa()
-
-
-
-### - Parallel Computing trial
-
-
-
-# # ## 1. Different Neighborhoods with Local Search
-
-# # In[45]:
-
-
-# n_run = 1
-
-
-# # In[ ]:
-
-
-# times, objectives, ngh, runs = [], [], [], []
-# for k in range(3,4):
-#     for i in range(1, n_run+1):
-#         print("neighborhood ", k, "run ", i)
-#         ngh.append(k)
-#         runs.append(i)
-#         local_search_average = LocalSearch(rg_, init_sol, n_iteration, wt_obj='average')
-#         local_search_average.run(which_neighbor=k)
-#         times.append(local_search_average.time)
-#         objectives.append(local_search_average.best_value)
-#         local_search_average.plot_ls(k, which_run=i)
-
-
-# # In[ ]:
-
-
-# Res = pd.DataFrame(columns=['Neighborhood','Run_n','BestObj','Time'])
-# Res['Neighborhood'] = ngh
-# Res['Run_n'] = runs
-# Res['BestObj'] = objectives
-# Res['Time'] = times
-# Res.to_excel("excel_files/local_search_w_different_ngh.xlsx")
-
-
-# # ## 2. SA with selected neighborhood
-
-# # In[ ]:
-
-
-# selected_neighborhood = 1 # later to be changed
-
-
-# # In[ ]:
-
-
-# times, objectives, runs = [], [], []
-# for i in range(1, n_run+1):
-#     print("run ", i)
-#     runs.append(i)
-#     simulated_annealing_average = SimulatedAnnealing(rg_, init_sol, n_iteration, "average")
-#     simulated_annealing_average.run(which_neighbor=selected_neighborhood)
-#     times.append(simulated_annealing_average.time)
-#     objectives.append(simulated_annealing_average.best_value)
-#     simulated_annealing_average.plot_sa(selected_neighborhood, which_run=i)
-
-
-# # In[ ]:
-
-
-# Res = pd.DataFrame(columns=['Run_n','BestObj','Time'])
-# Res['Run_n'] = runs
-# Res['BestObj'] = objectives
-# Res['Time'] = times
-# Res.to_excel("excel_files/simulated_annealing_w_selected_ngh.xlsx")
-
-
-# # ## 3. VNS
-
-# # In[ ]:
-
-
-# times, objectives, runs = [], [], []
-# for i in range(1, n_run+1):
-#     print("run ", i)
-#     runs.append(i)
-#     vns_average = VNS(rg_, init_sol, n_iteration, "average")
-#     vns_average.run()
-#     times.append(vns_average.time)
-#     objectives.append(vns_average.best_value)
-#     vns_average.plot_vns(which_run=i)
-
-
-# # In[ ]:
-
-
-# Res = pd.DataFrame(columns=['Run_n','BestObj','Time'])
-# Res['Run_n'] = runs
-# Res['BestObj'] = objectives
-# Res['Time'] = times
-# Res.to_excel("excel_files/vns.xlsx")
-
-
-# # ## 4. Local Search with Random Initial Solution
-
-# # In[ ]:
-
-
-# init_sol = getRandomFeasibleSolution("average")
-
-
-# # In[ ]:
-
-
-# times, objectives, runs = [], [], []
-# for i in range(1, n_run+1):
-#     print("run ", i)
-#     runs.append(i)
-#     local_search_average = LocalSearch(rg_, init_sol, n_iteration, wt_obj='average')
-#     local_search_average.run(which_neighbor=selected_neighborhood)
-#     times.append(local_search_average.time)
-#     objectives.append(local_search_average.best_value)
-#     local_search_average.plot_ls(selected_neighborhood, which_run=i, randomm_init_sol=True)
-
-
-# # In[ ]:
-
-
-# Res = pd.DataFrame(columns=['Run_n','BestObj','Time'])
-# Res['Run_n'] = runs
-# Res['BestObj'] = objectives
-# Res['Time'] = times
-# Res.to_excel("excel_files/rnd_local_search_w_selected_ngh.xlsx")
-
-
-# # ## 5. Simulated Annealing with Random Initial Solution
-
-# # In[ ]:
-
-
-# times, objectives, runs = [], [], []
-# for i in range(1, n_run+1):
-#     print("run ", i)
-#     runs.append(i)
-#     simulated_annealing_average = SimulatedAnnealing(rg_, init_sol, n_iteration, "average")
-#     simulated_annealing_average.run(which_neighbor=selected_neighborhood)
-#     times.append(simulated_annealing_average.time)
-#     objectives.append(simulated_annealing_average.best_value)
-#     simulated_annealing_average.plot_sa(selected_neighborhood, which_run=i, randomm_init_sol=True)
-
-
-# # In[ ]:
-
-
-# Res = pd.DataFrame(columns=['Run_n','BestObj','Time'])
-# Res['Run_n'] = runs
-# Res['BestObj'] = objectives
-# Res['Time'] = times
-# Res.to_excel("excel_files/rnd_simulated_annealing_w_selected_ngh.xlsx")
-
-
-# # ## 6. VNS with Random Initial Solution
-
-# # In[ ]:
-
-
-# times, objectives, runs = [], [], []
-# for i in range(1, n_run+1):
-#     print("run ", i)
-#     runs.append(i)
-#     vns_average = VNS(rg_, init_sol, n_iteration, "average")
-#     vns_average.run()
-#     times.append(vns_average.time)
-#     objectives.append(vns_average.best_value)
-#     vns_average.plot_vns(which_run=i, randomm_init_sol=True)
-
-
-# # In[ ]:
-
-
-# Res = pd.DataFrame(columns=['Run_n','BestObj','Time'])
-# Res['Run_n'] = runs
-# Res['BestObj'] = objectives
-# Res['Time'] = times
-# Res.to_excel("excel_files/rnd_vns.xlsx")
-
-
-# # ## 7. Multi-Objective Local Search & VNS
-
-# # In[ ]:
-
-
-# init_sol = constructionHeuristic("average")
-
-
-# # In[ ]:
-
-
-# times_LS, times_VNS, SM_LS, SM_VNS, Dm_LS, Dm_VNS, QM_LS, QM_VNS, runs = [], [], [], [], [], [], [],[],[]
-# for i in range(1, n_run+1):
-#     print("run ", i)
-#     runs.append(i)
-    
-#     local_search_multi = LocalSearchMultiObj(rg_, init_sol, n_iteration,wt_obj="average")
-#     local_search_multi.run(which_neighbor=selected_neighborhood)
-#     times_LS.append(local_search_multi.time)
-#     sm_, dm_ = SM_DM(local_search_multi)
-#     SM_LS.append(sm_)
-#     Dm_LS.append(dm_)
-    
-#     vns_multi = VNSMultiObj(rg_, init_sol, n_iteration,wt_obj="average")
-#     vns_multi.run()
-#     times_VNS.append(local_search_multi.time)
-#     sm_, dm_ = SM_DM(vns_multi)
-#     SM_VNS.append(sm_)
-#     Dm_VNS.append(dm_)
-    
-#     ls_QM, vns_QM = QM(local_search_multi,vns_multi)
-#     QM_LS.append(ls_QM)
-#     QM_VNS.append(vns_QM)
-    
-#     local_search_multi.plot(which_neighbor=selected_neighborhood, which_run=i)
-#     vns_multi.plot(which_run=i)
-
-
-# # In[ ]:
-
-
-# Res = pd.DataFrame(columns=['Run_n','LS_SM','LS_DM','LS_QM','LS_Time','VNS_SM','VNS_DM','VNS_QM','VNS_Time'])
-# Res['Run_n'] = runs
-# Res['LS_SM'] = SM_LS
-# Res['LS_DM'] = Dm_LS
-# Res['LS_QM'] = QM_LS
-# Res['LS_Time'] = times_LS
-# Res['VNS_SM'] = SM_VNS
-# Res['VNS_DM'] = Dm_VNS
-# Res['VNS_QM'] = QM_VNS
-# Res['VNS_Time'] = times_VNS
-# Res.to_excel("excel_files/multiobjective.xlsx")
-
-
-# # In[ ]:
-
-
-
-
+    #######################
+    # Slide 33 - Greedy Initial Solution
+    #######################
+    init_sol = constructionHeuristic("average")
+    simulateLocalSearch(rg_, init_sol, n_iteration, n_run, selected_neighborhood)
+
+    #######################
+    # Slide 34
+    #######################
+    init_sol = getRandomFeasibleSolution("average")
+    simulateLocalSearch(rg_, init_sol, n_iteration, n_run, selected_neighborhood)
+    simulateSimulatedAnnealing(rg_, init_sol, n_iteration, n_run, selected_neighborhood)
+    simulateVNS(rg_, init_sol, n_iteration, n_run)
+
+    #######################
+    # Slide 36
+    #######################
+    init_sol = constructionHeuristic("average")
+    simulateMultiObj(rg_, init_sol, n_iteration, n_run, selected_neighborhood)
+
+    #########################
+    # Slide 37
+    #########################
+    simulateLocalSearchWithMax(rg_, init_sol, n_iteration, n_run, selected_neighborhood)
