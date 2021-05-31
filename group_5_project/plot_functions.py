@@ -16,7 +16,7 @@ def plot_variate_reduction_results_for_groups(
     ax.plot(control_variate[group], label='Std. dev. - control variate runs')
     ax.set(
            xlabel='Epoch',
-           ylabel='Average Waiting Time')
+           ylabel='Average Waiting Time Std')
     ax.legend()
     fig.savefig(f'plots/extra/variance_reduction_{file_name}.png')
     plt.show()
