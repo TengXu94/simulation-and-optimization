@@ -21,6 +21,7 @@ There are two ways to replicate all figures shown in the slide presentation:
 - distributions, all functions that are related to distributions are stored here.
 - extra_optimizing_per_group, some extra work that could have been interesting to study further. Here we have implemented the control_variate functions able to deal with single servers instead of the overall system.
 - models, this file contains multiple classes which help us to represent the simulation environment.
+- optimization, the main file for the optimization task.
 - plot_functions, all plotting functions are stored here.
 - simulation, all functions to create our simulation environment are stored here.
 - Scenario, our main class which represents and stores all environment variables.
