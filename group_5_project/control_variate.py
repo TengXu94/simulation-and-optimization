@@ -169,7 +169,7 @@ def controlled_mean(x, y, mu):
     
     return avg, var, z
 
-def control_variate_runs(allocation: list, scenario=None):
+def control_variate_runs(allocation: list, control_variable: str, scenario=None):
     t = 0
     
     # this is specified only if called from the optimization side
@@ -184,7 +184,7 @@ def control_variate_runs(allocation: list, scenario=None):
     mean_waiting_time_var_all = []
     
     
-    total_msn_customers_all = []
+    control_variable_all = []
     mean_waiting_time_control_all = []
     
     
@@ -224,13 +224,13 @@ def control_variate_runs(allocation: list, scenario=None):
         mean_waiting_time_mean_all .append(mean)
         mean_waiting_time_var_all.append(var)
         
-        total_msn_customers = statistics['overall']['total_customers']
+        control_variable = statistics['overall'][control_variable]
 
         if j:
-            total_msn_customers_all.append(total_msn_customers)
+            control_variable_all.append(control_variable)
             _, var_control, _ = controlled_mean(
                 np.array(mean_waiting_time_all),
-                np.array(total_msn_customers_all),
+                np.array(control_variable_all),
                 0.5
             )
             mean_waiting_time_control_all.append(var_control)
@@ -239,11 +239,11 @@ def control_variate_runs(allocation: list, scenario=None):
             print(f'Variance Control: {np.sqrt(var_control)}')
             print(f'='*47)
         else:
-            total_msn_customers_all = [total_msn_customers]
+            control_variable_all = [control_variable]
             mean_waiting_time_control_all = [var]
 
     print(f'Correlation Matrix')
-    print(f'{np.corrcoef(total_msn_customers_all, mean_waiting_time_all)}')
+    print(f'{np.corrcoef(control_variable_all, mean_waiting_time_all)}')
     
     # optimization
     statistics = dict()
@@ -257,15 +257,29 @@ def control_variate_runs(allocation: list, scenario=None):
 
 
 if __name__ == '__main__':
-    control_variate, _ = control_variate_runs(SECOND_ALLOCATION)
-    independent = independent_runs(SECOND_ALLOCATION)
-    antithetic, _ = antithetic_runs(SECOND_ALLOCATION)
-    plot_variable_reduction_results(
-        independent=independent,
-        antithetic=antithetic,
-        control_variate=control_variate,
-        allocation='second_allocation',
-        control='total_customers'
-    )
+
+    for allocation, name in [(FIRST_ALLOCATION, 'first_allocation'), (SECOND_ALLOCATION, 'second_allocation')]:
+
+        control_variate, _ = control_variate_runs(allocation, control_variable='total_msn_customers')
+        independent = independent_runs(allocation)
+        antithetic, _ = antithetic_runs(allocation)
+        plot_variable_reduction_results(
+            independent=independent,
+            antithetic=antithetic,
+            control_variate=control_variate,
+            allocation=name,
+            control='total_msn_customers'
+        )
+
+        control_variate, _ = control_variate_runs(allocation, control_variable='total_customers')
+        independent = independent_runs(allocation)
+        antithetic, _ = antithetic_runs(allocation)
+        plot_variable_reduction_results(
+            independent=independent,
+            antithetic=antithetic,
+            control_variate=control_variate,
+            allocation=name,
+            control='total_customers'
+        )
 
     

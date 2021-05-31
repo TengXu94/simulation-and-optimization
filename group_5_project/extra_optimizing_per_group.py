@@ -21,7 +21,7 @@ def get_all_groups_variances(final_statistics: dict, groups: list, variance_key:
     return group_variances
 
 
-def test_bootstrap(allocation: list, file_name: str):
+def test_bootstrap_group(allocation: list, file_name: str):
 	"""
 	Description:
 	    Parameters estimation using bootstrap
@@ -81,7 +81,7 @@ def test_bootstrap(allocation: list, file_name: str):
 	    )
 
 
-def independent_runs(allocation: list):
+def independent_runs_group(allocation: list):
     """
     Description:
         Parameters estimation, benchmark against antithetic runs and control variable
@@ -133,7 +133,7 @@ def independent_runs(allocation: list):
     return output
 
 
-def antithetic_runs(allocation: list):
+def antithetic_runs_group(allocation: list):
     t = 0
 
     simulation_parameters = SimulationParameters()
@@ -177,7 +177,7 @@ def antithetic_runs(allocation: list):
     return output
 
 
-def control_variate_runs(allocation: list):
+def control_variate_runs_group(allocation: list):
     t = 0
     scenario = Scenario(allocation, allocation)
     simulation_parameters = SimulationParameters()
@@ -231,9 +231,9 @@ def control_variate_runs(allocation: list):
 
 if __name__ == '__main__':
 
-    independent = independent_runs(FIRST_ALLOCATION)
-    antithetic = antithetic_runs(FIRST_ALLOCATION)
-    controlled_variates = control_variate_runs(FIRST_ALLOCATION)
+    independent = independent_runs_group(FIRST_ALLOCATION)
+    antithetic = antithetic_runs_group(FIRST_ALLOCATION)
+    controlled_variates = control_variate_runs_group(FIRST_ALLOCATION)
 
     plot_variate_reduction_results_for_groups(
         independent,
@@ -243,9 +243,9 @@ if __name__ == '__main__':
         ServerIDs.msn.value
     )
 
-    independent = independent_runs(SECOND_ALLOCATION)
-    antithetic= antithetic_runs(SECOND_ALLOCATION)
-    controlled_variates = control_variate_runs(SECOND_ALLOCATION)
+    independent = independent_runs_group(SECOND_ALLOCATION)
+    antithetic= antithetic_runs_group(SECOND_ALLOCATION)
+    controlled_variates = control_variate_runs_group(SECOND_ALLOCATION)
 
     plot_variate_reduction_results_for_groups(
         independent,
