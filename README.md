@@ -1,6 +1,6 @@
 # Repository Description
 
-This Group 5 GitHub repository for MATH-600 Spring 2021 course.
+This is the Group 5 GitHub repository for MATH-600 Spring 2021 course.
 
 # Content
 
@@ -8,7 +8,9 @@ This Group 5 GitHub repository for MATH-600 Spring 2021 course.
 - Group Project Code - Online Movie Streaming
 - Course Lab Submissions
 
-# Project Structure
+# Repository Structure
+
+The repository is structured as follows:
 
 simulation-and-optimization
  ┣ group_5_project
@@ -45,6 +47,19 @@ simulation-and-optimization
  ┃ ┃ ┗ lab_5_submission
  ┣ .gitignore
  ┗ README.md
+ ┗ presentation.pdf
+
+## Repository - Files Description
+
+There are two main folders and one .pdf file:
+	- presentation.pdf, is our final presentation file.
+	- group_5_project, contains all the code relevant to run our simulation project:
+		- we have a unique notebook, as requested, able to reproduce all results.
+		- at the same time, we have multiple .py files, as we found more convenient to work with vanilla python files when working in a team. Moreover, in this way, the code is cleaner, more modular, and more readable.
+	- labs, this folder contains our final labs submission. For each lab, we have submitted an unique notebook. The folder is further suddivided in:
+		- labs_simulation, which contains all simulation notebooks.
+		- labs_optimization, which contains all optimization notebooks.
+
 
 # The Team
 
