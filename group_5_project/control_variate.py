@@ -226,7 +226,6 @@ def control_variate_runs(allocation: list, scenario=None):
         
         total_msn_customers = statistics['overall']['total_msn_customers']
 
-        # Control the average waiting time
         if j:
             total_msn_customers_all.append(total_msn_customers)
             _, var_control, _ = controlled_mean(
@@ -235,6 +234,10 @@ def control_variate_runs(allocation: list, scenario=None):
                 0.5
             )
             mean_waiting_time_control_all.append(var_control)
+            # Control the average waiting time
+            print(f'='*47)
+            print(f'Variance Control: {np.sqrt(var_control)}')
+            print(f'='*47)
         else:
             total_msn_customers_all = [total_msn_customers]
             mean_waiting_time_control_all = [var]
@@ -249,7 +252,7 @@ def control_variate_runs(allocation: list, scenario=None):
     statistics['overall'][Statistics.max_.value] = np.mean(max_waiting_time)
     statistics['overall'][Statistics.q75.value] = np.mean(q75_waiting_time)
     
-    return np.sqrt(mean_waiting_time_var_all), statistics
+    return np.sqrt(mean_waiting_time_control_all), statistics
 
 
 
@@ -260,7 +263,9 @@ if __name__ == '__main__':
     plot_variable_reduction_results(
         independent=independent,
         antithetic=antithetic,
-        control_variate=control_variate
+        control_variate=control_variate,
+        allocation='second_allocation',
+        control='total_msn_customers'
     )
 
     

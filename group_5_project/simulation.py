@@ -160,7 +160,6 @@ def generate_customers(G1: CustomerGroup, G2: CustomerGroup, G3: CustomerGroup, 
         customers_3 = adjust_time_and_pick_a_movie(arrival_times_3, delta_T, G3, LB)
     
         merged_customers = customers_1 + customers_2 + customers_3
-        
         merged_customers.sort(key=lambda customers:customers.time)
         
         requests = requests + merged_customers
@@ -211,8 +210,10 @@ def handle_requests(scenario: Scenario, u=np.array([])):
     customers_asn_1 = []
     customers_asn_2 = []
     
+    ############################
+    # BEGIN: Splitting customers per server
+    ###########################
     for customer in customers:
-        
         if customer.server_address==ServerIDs.msn.value:
             customers_msn.append(customer)
         elif customer.server_address==ServerIDs.asn_1.value:
@@ -224,13 +225,14 @@ def handle_requests(scenario: Scenario, u=np.array([])):
     customers_msn.sort(key=lambda customers:customers.time)
     customers_asn_1.sort(key=lambda customers:customers.time)
     customers_asn_2.sort(key=lambda customers:customers.time)
-    
-    
+
     # Get customers per server
     print('{:<30}'.format(f'MSN Customers Length: {len(customers_msn)}'))
     print('{:<30}'.format(f'ASN2 Customers Length: {len(customers_asn_2)}'))
     print('{:<30}'.format(f'ASN1 Customers Length: {len(customers_asn_1)}'))
-    
+    #############################
+    # END: it takes less than 0.01s
+    #############################
     
     if np.any(u):
         results_msn = process_customers(customers_msn, load_balancer, ServerIDs.msn.value, u[9,:])

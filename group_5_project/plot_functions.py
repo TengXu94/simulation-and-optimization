@@ -24,7 +24,9 @@ def plot_variate_reduction_results_for_groups(
 def plot_variable_reduction_results(
     independent: np.array, 
     antithetic: np.array, 
-    control_variate: np.array
+    control_variate: np.array,
+    allocation: str,
+    control: str
 ):
     fig = plt.figure()
     ax = plt.subplot(1,1,1)
@@ -37,7 +39,7 @@ def plot_variable_reduction_results(
         ylabel='Average Waiting Time'
     )
     ax.legend()
-    fig.savefig('plots/variance_reduction/second_allocation.png', dpi=300)
+    fig.savefig(f'plots/variance_reduction/{allocation}_control={control}.png', dpi=300)
 
 def plot_queues(queues, title: str, file_name: str):
     fig = plt.figure()
