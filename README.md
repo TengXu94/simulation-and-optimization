@@ -17,12 +17,6 @@ simulation-and-optimization
  ┃ ┃ ┣ bootstrap
  ┃ ┃ ┣ extra
  ┃ ┃ ┣ optimization
- ┃ ┃ ┃ ┣ local_search_experiment
- ┃ ┃ ┃ ┣ multiobjective
- ┃ ┃ ┃ ┃ ┣ local_search_experiment
- ┃ ┃ ┃ ┃ ┣ vns_experiment
- ┃ ┃ ┃ ┣ simulated_annealing_experiment
- ┃ ┃ ┃ ┣ vns_experiment
  ┃ ┃ ┣ variance_reduction
  ┃ ┣ Group_5_movie_project.ipynb
  ┃ ┣ README.md
