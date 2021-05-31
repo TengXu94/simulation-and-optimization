@@ -121,6 +121,7 @@ class LoadBalancer:
             return self.serve_times[1500][server_id][group_id]
         else:
             raise Exception(f'Movie Size: {movie_size}')
+
         
 class SingleCustomer:
     """ 

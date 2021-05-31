@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
 from numpy.random import Generator, PCG64
 from numpy import unravel_index
 import matplotlib.pyplot as plt
@@ -17,295 +11,14 @@ random.seed(0)
 import timeit
 from operator import attrgetter
 import math
-
-
-# In[2]:
-
-
-import time
+import matplotlib.pyplot as plt
 import multiprocessing as mp
 
 # project packages
-from models import SingleCustomer, LoadBalancer, Server, CustomerGroup, Status, Groups, ServerIDs, Statistics
-from distributions import exponential_rng, homogeneous_poisson_process,homogeneous_poisson_process_variance_reduction
-
-## Simulation
-from simulation import handle_requests
-
-## bootstrap
-from bootstrap import bootstrap, moving_mean_var, test_bootstrap
-
+from models import CustomerGroup, Groups
+from control_variate import antithetic_runs
 ## Scenario
 from Scenario import Scenario
-
-## utils -> get statistics
-from utils import get_queue_statistics, get_statistics
-
-## constants
-from constants import MAX_CAPACITY, FIRST_ALLOCATION, SECOND_ALLOCATION
-
-## Parameters for the simulations run: independent run, antithetic run
-from SimulationParameters import SimulationParameters
-
-## plot functions
-from plot_functions import plot_queues, plot_empirical_mean_waiting_time
-
-
-# # Simulation
-
-# ## Bootstraping
-# 
-# We are use bootstraping to improve our estimation of the true value. In this case we are applying the bootstrap technique to get a better estimation of the true mean waiting time.
-
-
-#test_bootstrap(FIRST_ALLOCATION, file_name='first_allocation')  # UNCOMMENT LATER!
-#test_bootstrap(SECOND_ALLOCATION, file_name='second_allocation')
-
-
-# ## Variance Reduction
-
-# ## 0. Independent Runs
-
-def independent_runs(allocation: list):
-    """
-    Description:
-        Parameters estimation, benchmark against antithetic runs and control variable
-    Args:
-        allocation (list) - The list of initial movies allocated to the ASNs
-        file_name (str) - custom plot file name
-    """
-    t = 0
-    scenario = Scenario(allocation, allocation)
-    simulation_parameters = SimulationParameters()
-
-    var = 0
-    mean  = 0
-    mean_waiting_time_all = []
-    mean_waiting_time_mean_all = []
-    mean_waiting_time_var_all = []
-    while True: 
-        t += 1
-
-        # Run simulation
-        results, _ = handle_requests(scenario)
-
-        # Collect statistics
-        statistics = get_statistics(results)
-
-
-        mean_waiting_time = statistics['overall'][Statistics.mean.value]
-        mean, var = moving_mean_var(
-            mean_waiting_time,\
-            mean,\
-            var,\
-            t
-        )
-  
-        mean_waiting_time_all.append(mean_waiting_time)
-        mean_waiting_time_mean_all .append(mean)
-        mean_waiting_time_var_all.append(var)
-
-        # Check if necessary precision reached
-        if t >= simulation_parameters.run and np.sqrt(var / t) < simulation_parameters.precision:
-            break
-    
-    return np.sqrt(mean_waiting_time_var_all)
-
-
-# ## 1. Antithetic Runs
-
-def antithetic_runs(allocation: list, scenario=None):
-    t = 0
-        # this is specified only if called from the optimization side
-    if not scenario:
-        scenario = Scenario(allocation, allocation)
-    simulation_parameters = SimulationParameters()
-
-    var = 0
-    mean  = 0
-    mean_waiting_time_all = []
-    mean_waiting_time_mean_all = []
-    mean_waiting_time_var_all = []
-    
-        
-    #For optimization
-    max_waiting_time = []
-    average_waiting_time = []
-    q75_waiting_time = []
-    
-    for i in np.arange(0, simulation_parameters.run/2): 
-        t += 1
-
-        # Run simulation (independent)
-        u = np.random.rand(12, 15000)
-        results, _ = handle_requests(scenario, u)
-
-
-        # Run simulation (antithetic)
-        u = 1 - u
-        results_antithetic, _ = handle_requests(scenario, u)
-        
-        # Collect statistics
-        statistics = get_statistics(results)
-        statistics_antithetic = get_statistics(results_antithetic)
-        ##################
-        # For optimization
-        ##################
-        max_waiting_time.append(statistics['overall'][Statistics.max_.value])
-        average_waiting_time = [statistics['overall'][Statistics.mean.value]]
-        q75_waiting_time.append(statistics['overall'][Statistics.q75.value])
-        mean_waiting_time = statistics['overall'][Statistics.mean.value]
-        mean_waiting_time_antithetic = statistics_antithetic['overall'][Statistics.mean.value]
-        
-        mean_waiting_time = (mean_waiting_time + mean_waiting_time_antithetic) / 2
-        mean, var = moving_mean_var(
-            mean_waiting_time,\
-            mean,\
-            var,\
-            t
-        )
-
-        mean_waiting_time_all.append(mean_waiting_time)
-        mean_waiting_time_mean_all .append(mean)
-        mean_waiting_time_var_all.append(var)
-    # optimization
-    statistics = dict()
-    statistics['overall'] = dict()
-    statistics['overall'][Statistics.mean.value] = np.mean(average_waiting_time)
-    statistics['overall'][Statistics.max_.value] = np.mean(max_waiting_time)
-    statistics['overall'][Statistics.q75.value] = np.mean(q75_waiting_time)
-    
-    return np.sqrt(mean_waiting_time_var_all), statistics
-
-
-# ## 2. Controlled Mean
-
-def controlled_mean(x, y, mu):
-    """ Calculates the controlled mean.
-    
-    Keywords:
-        x (array): Data.
-        y (array): Control data.
-        mu (float): Scalar expectation of the control data.
-    
-    Returns:
-        avg (float): Controlled mean of the data.
-        var (float): Variance of the controlled mean.
-        z (array): Optimal linear combination of the data and the control data. 
-    """
-
-    cov = np.cov(x, y)
-    cov_xy = cov[1, 0]
-    var_y = cov[1, 1]
-    
-    c = -cov_xy / var_y
-    z = x + c * (y - mu)
-    
-    avg = z.mean()
-    var = z.var()
-    
-    return avg, var, z
-
-def control_variate_runs(allocation: list, scenario=None):
-    t = 0
-    
-    # this is specified only if called from the optimization side
-    if not scenario:
-        scenario = Scenario(allocation, allocation)
-    simulation_parameters = SimulationParameters()
-    
-    var = 0
-    mean  = 0
-    mean_waiting_time_all = []
-    mean_waiting_time_mean_all = []
-    mean_waiting_time_var_all = []
-    
-    
-    max_queue_length_all = []
-    mean_waiting_time_control_all = []
-    
-    
-    #For optimization
-    max_waiting_time = []
-    average_waiting_time = []
-    q75_waiting_time = []
-    
-    #Main loop
-    for j in np.arange(simulation_parameters.run):
-        t += 1
-
-        # Run simulation
-        results, queue = handle_requests(scenario)
-        # the maximum queue length for each group
-        queue = get_queue_statistics(queue)
-        # Collect statistics
-        statistics = get_statistics(results)
-        
-        
-        ##################
-        # For optimization
-        ##################
-        max_waiting_time.append(statistics['overall'][Statistics.max_.value])
-        average_waiting_time = [statistics['overall'][Statistics.mean.value]]
-        q75_waiting_time.append(statistics['overall'][Statistics.q75.value])
-        
-        mean_waiting_time = statistics['overall'][Statistics.mean.value]
-        mean, var = moving_mean_var(
-            mean_waiting_time,\
-            mean,\
-            var,\
-            t
-        )
-  
-        mean_waiting_time_all.append(mean_waiting_time)
-        mean_waiting_time_mean_all .append(mean)
-        mean_waiting_time_var_all.append(var)
-        
-        mean_queue_length = (queue['overall']['max'] + queue['overall']['min']) / 2
-        # Control the average waiting time
-        if j:
-            max_queue_length_all.append(mean_queue_length)
-            _, var_control, _ = controlled_mean(
-                np.array(mean_waiting_time_all),
-                np.array(max_queue_length_all),
-                0.5
-            )
-            mean_waiting_time_control_all.append(var_control)
-        else:
-            max_queue_length_all = [mean_queue_length]
-            mean_waiting_time_control_all = [var]
-
-    print(f'Correlation Matrix')
-    print(f'{np.corrcoef(max_queue_length_all, mean_waiting_time_all)}')
-    
-    # optimization
-    statistics = dict()
-    statistics['overall'] = dict()
-    statistics['overall'][Statistics.mean.value] = np.mean(average_waiting_time)
-    statistics['overall'][Statistics.max_.value] = np.mean(max_waiting_time)
-    statistics['overall'][Statistics.q75.value] = np.mean(q75_waiting_time)
-    
-    return np.sqrt(mean_waiting_time_var_all), statistics
-
-# independent = independent_runs(FIRST_ALLOCATION)
-# antithetic = antithetic_runs(FIRST_ALLOCATION)
-
-# control_variate, _ = control_variate_runs(FIRST_ALLOCATION)
-
-import matplotlib.pyplot as plt
-
-# fig = plt.figure()
-# ax = plt.subplot(1,1,1)
-
-# ax.plot(independent, label='Std. dev. - independent runs')
-# ax.plot(np.arange(0,len(independent),step=2), antithetic, label='Std. dev.- antithetic runs')
-# ax.plot(control_variate, label='Std. dev. - control variate runs')
-# ax.set(title='Waiting Time',
-#        xlabel='Epoch',
-#        ylabel='Average Waiting Time')
-# ax.legend()
-# fig.savefig('variance_reduction.pdf', dpi=300)
-# plt.show()
 
 
 # # Optimization Part
@@ -347,7 +60,6 @@ class Solution():
         self.total_size = sum([self.scenario.movie_sizes[i] for i in self.movies_ASN1])
         self.total_size += sum([self.scenario.movie_sizes[i] for i in self.movies_ASN2])
         
-        # Yoooooooooo, that's a lot!
         _, self.statistics = antithetic_runs(
             allocation=self.movies_ASN1, # dummy variable if scenario is specified
             scenario=self.scenario # for compatibility between simulation and optimization
@@ -559,10 +271,6 @@ def getRandomFeasibleSolution(wt_obj):
 
 # ## 3. Neighborhood Definitions
 # ----------------------------------
-
-# In[13]:
-
-
 def generateNewMovie_1(rg, movie_list):
     #From the starting point, randomly choose 1 movie to delete, 
     #Randomly choose 2, check size
@@ -866,10 +574,6 @@ def temperature_update(init, i, iterations):
         p_f = 0.001
         return -init/np.log(p_0+(p_f-p_0)/iterations*i)
 
-
-# In[18]:
-
-
 def get_candidate_solution(rg, given_solution, which_neighbor):
     """
     % It generates a neighborhood of the given solution with respect to
@@ -904,10 +608,6 @@ def get_candidate_solution(rg, given_solution, which_neighbor):
 
 
 # ### 4.2. Base Class
-
-# In[19]:
-
-
 class AlgorithmSingleObjective(object):
 
     """
@@ -951,10 +651,6 @@ class AlgorithmSingleObjective(object):
 
 
 # ### 4.3. Local Search
-
-# In[20]:
-
-
 class LocalSearch(AlgorithmSingleObjective):
     
     """
@@ -1045,10 +741,6 @@ class LocalSearch(AlgorithmSingleObjective):
 
 
 # ### 4.4. Simulated Annealing
-
-# In[21]:
-
-
 class SimulatedAnnealing(AlgorithmSingleObjective):
     
     """
@@ -1150,10 +842,6 @@ class SimulatedAnnealing(AlgorithmSingleObjective):
 
 
 # ### 4.5. Variable Neighborhood Search (VNS)
-
-# In[22]:
-
-
 class VNS(AlgorithmSingleObjective):
     """
     Inherited from AlgorithmSingleObjective class to implement Variable Neighborhood Search
@@ -1259,10 +947,6 @@ class VNS(AlgorithmSingleObjective):
 # --------------------------------------------------------------------------------------------
 
 # ### 5.1. Helpers
-
-# In[23]:
-
-
 # Pareto dominance
 def improvement(solution_old, solution_new):
     
@@ -1366,10 +1050,6 @@ class AlgorithmMultiObjective(object):
 
 
 # ### 5.3. Local Search
-
-# In[25]:
-
-
 class LocalSearchMultiObj(AlgorithmMultiObjective):
     
     """
@@ -1418,10 +1098,6 @@ class LocalSearchMultiObj(AlgorithmMultiObjective):
 
 
 # ### 5.4. VNS
-
-# In[26]:
-
-
 class VNSMultiObj(AlgorithmMultiObjective):
     
     """

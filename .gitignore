@@ -1,2 +1,5 @@
 */.DS_Store
 */.ipynb_checkpoints/*.ipynb
+group_5_project/__pycache__
+build
+*/*.swp
