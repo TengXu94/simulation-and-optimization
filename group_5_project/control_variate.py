@@ -224,7 +224,7 @@ def control_variate_runs(allocation: list, scenario=None):
         mean_waiting_time_mean_all .append(mean)
         mean_waiting_time_var_all.append(var)
         
-        total_msn_customers = statistics['overall']['total_msn_customers']
+        total_msn_customers = statistics['overall']['total_customers']
 
         if j:
             total_msn_customers_all.append(total_msn_customers)
@@ -265,7 +265,7 @@ if __name__ == '__main__':
         antithetic=antithetic,
         control_variate=control_variate,
         allocation='second_allocation',
-        control='total_msn_customers'
+        control='total_customers'
     )
 
     

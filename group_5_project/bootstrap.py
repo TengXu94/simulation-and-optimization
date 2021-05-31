@@ -144,9 +144,10 @@ def test_bootstrap(allocation: list, file_name: str):
         f'overall_q75_waiting_time_{file_name}_variable=q75_mse={round(bootstrap_q75,2)}'
     )
 
+    print(f'mean={empirical_mean}, max={empirical_max}, q75={empiritical_q75}')
+
 
 if __name__ == '__main__':
     test_bootstrap(FIRST_ALLOCATION, 'first_allocation')
-
     test_bootstrap(SECOND_ALLOCATION, 'second_allocation')
 

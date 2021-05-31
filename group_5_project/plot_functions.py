@@ -36,7 +36,7 @@ def plot_variable_reduction_results(
     ax.plot(control_variate, label='Std. dev. - control variate runs')
     ax.set(
         xlabel='Epoch',
-        ylabel='Average Waiting Time'
+        ylabel='Average Waiting Time Std'
     )
     ax.legend()
     fig.savefig(f'plots/variance_reduction/{allocation}_control={control}.png', dpi=300)

@@ -2,7 +2,7 @@ from models import ServerIDs
 import numpy as np
 
 from bootstrap import bootstrap, moving_mean_var
-from Group_5_Simulation import controlled_mean
+from control_variate import controlled_mean
 from SimulationParameters import SimulationParameters
 from Scenario import Scenario
 from models import ServerIDs
@@ -231,17 +231,17 @@ def control_variate_runs(allocation: list):
 
 if __name__ == '__main__':
 
-    # independent = independent_runs(FIRST_ALLOCATION)
-    # antithetic = antithetic_runs(FIRST_ALLOCATION)
-    # controlled_variates = control_variate_runs(FIRST_ALLOCATION)
+    independent = independent_runs(FIRST_ALLOCATION)
+    antithetic = antithetic_runs(FIRST_ALLOCATION)
+    controlled_variates = control_variate_runs(FIRST_ALLOCATION)
 
-    # plot_variate_reduction_results_for_groups(
-    #     independent,
-    #     antithetic,
-    #     controlled_variates,
-    #     'first_allocation',
-    #     ServerIDs.msn.value
-    # )
+    plot_variate_reduction_results_for_groups(
+        independent,
+        antithetic,
+        controlled_variates,
+        'first_allocation',
+        ServerIDs.msn.value
+    )
 
     independent = independent_runs(SECOND_ALLOCATION)
     antithetic= antithetic_runs(SECOND_ALLOCATION)

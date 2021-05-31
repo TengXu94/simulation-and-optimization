@@ -1,11 +1,11 @@
 import numpy as np
 import time
 from Scenario import Scenario
-from models import SingleCustomer, LoadBalancer, Server, CustomerGroup, Status, Groups, ServerIDs
+from models import SingleCustomer, LoadBalancer, CustomerGroup, Status, Groups, ServerIDs
 from distributions import exponential_rng, homogeneous_poisson_process, homogeneous_poisson_process_variance_reduction
-from constants import SINGLE_CUSTOMER_DTYPE, SECOND_ALLOCATION, FIRST_ALLOCATION
-from utils import get_statistics
+from constants import SECOND_ALLOCATION, FIRST_ALLOCATION
 from plot_functions import plot_queues
+
 def adjust_time_and_pick_a_movie(arrival_times: list, delta_T: int, G: CustomerGroup, load_balancer: LoadBalancer)-> list:
     """
     Description:
@@ -27,11 +27,6 @@ def adjust_time_and_pick_a_movie(arrival_times: list, delta_T: int, G: CustomerG
         waiting_time = G.distances[serverAddress]
         output.append(SingleCustomer(G.ID, arrival_time + delta_T+waiting_time,\
                                      movie,serverAddress,waiting_time))
-        # output.append(
-        #     (G.ID, Status.arrived.value, arrival_time + delta_T + waiting_time, movie, waiting_time, serverAddress, False ) # must be a tuple
-        # )
-    
-    #output = np.array(output, dtype=SINGLE_CUSTOMER_DTYPE)
     return output
 
 def assign_server(servers_with_movie,best_servers):
@@ -108,46 +103,8 @@ def update_and_sort_customers_queue(customers: list, current_time: float, times:
         else:
             assert (customer.time == current_time) and (customer.status == Status.handled.value)
             times.append([current_time, current_queue])
-            #return sorted(customers, key = lambda customer: (customer.time, customer.status)), times
             customers.sort(key=lambda x: (x.time, x.status))
             return customers, times
-            
-def update_and_sort_customers_queue_dtype(customers: list, current_time: float, times: list):
-    """
-    Description:
-        Updates the time for each new customer(arrival)
-    Args:
-        list - customers list
-        float - current_time
-    Return:
-        the list of sorted customers (handled customers first)
-    """
-    
-    customers = np.sort(customers, order=['time', 'status'])
-    
-    # last (time, queue)
-    current_queue = times[-1][1]
-
-    for customer in customers:
-        
-        # current time is greater than customer time and
-        # customer is not handled
-        # then
-        # we increment the current_queue and we change the customer status
-        if customer[2] <= current_time and customer[1] != Status.handled.value:
-            
-            customer[4] += (current_time - customer[2])
-            customer[2] = current_time
-            if not customer[6]:
-                current_queue += 1
-                customer[6] = True
-        elif len(customers) == 1 and customer[2] > current_time:
-            times.append([current_time, current_queue])
-            return customers, times
-        else:
-            assert (customer[2] == current_time) and (customer[1] == Status.handled.value)
-            times.append([current_time, current_queue])
-            return np.sort(customers, order=['time', 'status']), times
 
 
 def ordered_insert(customers: list, customer: SingleCustomer):
@@ -163,21 +120,6 @@ def ordered_insert(customers: list, customer: SingleCustomer):
         if (customer_.time > customer.time) \
             or (customer.time == customer_.time and customer_.status > customer.status):
             customers.insert(index,customer)
-            return customers
-
-def ordered_insert_dtype(customers: list, customer):
-    """
-    """
-    if len(customers) == 0:
-        return [customer]
-    # customers should be ordered in time, status
-    for index, customer_ in enumerate(customers):
-        # if the current customer in the list has time greater than the one considered
-        # or if the current customer has the same time but lower priority
-        # then insert the customer before this one
-        if (customer_[2] > customer[2]) \
-            or (customer[2] == customer_[2] and customer_[1] > customer[1]):
-            customers = np.insert(customers, obj=index, values=customer)
             return customers
 
 
@@ -198,7 +140,6 @@ def generate_customers(G1: CustomerGroup, G2: CustomerGroup, G3: CustomerGroup, 
     T = 20 * 60
     
     requests = []
-    #requests = np.array([], dtype=SINGLE_CUSTOMER_DTYPE)
 
     # Generate Arrivals per group via homogeneous Poisson process based on group specific activity pattern
     for activity_number in range(0,3):
@@ -286,21 +227,6 @@ def handle_requests(scenario: Scenario, u=np.array([])):
         elif customer.server_address==ServerIDs.asn_2.value:
             customers_asn_2.append(customer)
 
-    # for customer in customers:
-    #     server_address = customer[5].decode()
-    #     if server_address == ServerIDs.msn.value:
-    #         customers_msn.append(customer)
-    #     elif server_address == ServerIDs.asn_1.value:
-    #         customers_asn_1.append(customer)
-    #     elif server_address == ServerIDs.asn_2.value:
-    #         customers_asn_2.append(customer)
-    # customers_msn = np.array(customers_msn, dtype=SINGLE_CUSTOMER_DTYPE)
-    # customers_asn_1 = np.array(customers_asn_1, dtype=SINGLE_CUSTOMER_DTYPE)
-    # customers_asn_2 = np.array(customers_asn_2, dtype=SINGLE_CUSTOMER_DTYPE)
-    # customers_msn = np.sort(customers_msn, order='time')
-    # customers_asn_1 = np.sort(customers_asn_1, order='time')
-    # customers_asn_2 = np.sort(customers_asn_2, order='time')
-
     # Sorting to ensure order dependent on time
     customers_msn.sort(key=lambda customers:customers.time)
     customers_asn_1.sort(key=lambda customers:customers.time)
@@ -352,7 +278,6 @@ def process_customers(customers, load_balancer, server_id, u=None):
     
     # First customer
     current_time = customers[0].time
-    #current_time = customers[0][2]
 
     # List of served customers
     customers_served = []
@@ -392,34 +317,23 @@ def process_customers(customers, load_balancer, server_id, u=None):
             if c.time > current_time:
                 current_time = c.time
 
-            # if c[2] > current_time:
-            #     current_time = c[2]
-
             c.waiting_time += time_to_handle
             current_time += time_to_handle
             c.time += time_to_handle
-        
-            # c[4] += time_to_handle
-            # current_time += time_to_handle
-            # c[2] += time_to_handle
+    
 
             server_busy = True
             
             if not c.is_waiting:
                 queues += 1
                 c.is_waiting = True
-            # if not c[6]:
-            #     queues += 1
-            #     c[6] = True
             times.append([current_time, queues])
             
             # remove the updated customer from the list
             customers.pop(0)
-            #customers = np.delete(customers, 0)
+    
             
-            # insert it again in a ordered fashion
-            #customers = ordered_insert(customers, c)
-          
+            # insert it again in a ordered fashion      
             customers = ordered_insert(customers, c) #10^(-5) s
         ########################
         # END: End of Case 1 Customers are sorted
@@ -430,13 +344,9 @@ def process_customers(customers, load_balancer, server_id, u=None):
         # The serve time is defined in Table 5 + some noise
         # The noise is uniformly distributed between [0.3, 0.7]
         elif c.status == Status.handled.value and server_busy:
-        #elif c[1] == Status.handled.value and server_busy:
             movie = c.movie_choice
             group_id = c.id_
             server_id = c.server_address
-            # movie = c[3]
-            # group_id = c[0]
-            # server_id = c[5].decode()
 
             time_to_serve = load_balancer.get_serve_time(movie, group_id, server_id)
             time_to_serve += np.random.uniform(0.3, 0.7)
@@ -445,38 +355,27 @@ def process_customers(customers, load_balancer, server_id, u=None):
             
             c.status = Status.served.value
             c.waiting_time += time_to_serve
-            # c[1] = Status.served.value
-            # c[4] += time_to_serve
             
             customers_served.append(c)
             customers.pop(0)
-            #customers = np.delete(customers, 0)       
+
             queues -= 1
             times.append([current_time, queues])
             
             # we don't need sorting here, we are killing the very first element in the list
-            #customers = sorted(customers, key = lambda customer: (customer.time, customer.status))
 
         #########
         # BEGIN: Case 3 new customer, server busy
         ############
         elif c.status == Status.arrived.value and server_busy:
             # customers are sorted already
-        #elif c[1] == Status.arrived.value and server_busy:
 
             # A new request arrives but the server is busy
             # update the waiting time and time
             customers, times = update_and_sort_customers_queue(customers, current_time, times)
-            #customers, times = update_and_sort_customers_queue_dtype(customers, current_time, times)
             queues = times[-1][1]
         if not customers:
             break
-        # try:
-        #     if customers.shape[0] > 0:
-        #         continue
-        # except:
-        #     break
-
     output = dict()
     output['customers_served'] = customers_served
     output['times'] = times
