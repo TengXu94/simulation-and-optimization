@@ -11,7 +11,7 @@ This is the Group 5 GitHub repository for MATH-600 Spring 2021 course.
 # Repository Structure
 
 The repository is structured as follows:
-
+```bash
 .
 +├── README.md
 +├── group_5_project
@@ -41,7 +41,7 @@ The repository is structured as follows:
 │       +├── lab_4_submission
 │       +└── lab_5_submission
 +├── presentation.pdf
-
+```
 
 ## Repository - Files Description
 
